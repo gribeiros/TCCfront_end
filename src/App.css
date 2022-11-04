@@ -33,9 +33,29 @@
 }
 
 .card {
-  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  background-color: whitesmoke;
+  padding: 32px;
+  align-items: flex-start;
+  border-radius: 8px;
+  color: black;
 }
 
-.read-the-docs {
-  color: #888;
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.connected-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: blueviolet;
+}
+
+.info-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: grey;
 }

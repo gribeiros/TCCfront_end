@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
+import './App.css';
 
 const socket = io.connect('http://localhost:8080');
 
@@ -49,12 +50,35 @@ function App() {
     }
   }
 
+  const connectedValue = useMemo(() => {
+    if (isConnected) return 'Conectado';
+    return 'Não conectado';
+  }, [isConnected])
+
+  const waterLevelValue = useMemo(() => {
+    if (waterLevel !== null) return `${waterLevel}`;
+    return '--';
+  }, [waterLevel])
+
+  const requestValue = useMemo(() => {
+    if (request !== null) return `${request}`;
+    return '--';
+  }, [request])
+
   return (
-    <div>
-      <p>Connected: {'' + isConnected}</p>
-      <p>Water Level: {'' + waterLevel}</p>
-      <p>Request: {'' + request}</p>
-      <button onClick={sendRequest}>Send ping</button>
+    <div className='card'>
+      <p className='title'>Sensor de nível de água</p>
+
+      <p>Status da conexão:</p>
+      <p className='connected-value'>{connectedValue}</p>
+
+      <p>Nível da água:</p>
+      <p className='info-value'>{waterLevelValue}</p>
+
+      <p>Status da requisição:</p>
+      <p className='info-value'>{requestValue}</p>
+
+      <button onClick={sendRequest}>Atualizar</button>
     </div>
   );
 }
