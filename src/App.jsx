@@ -7,8 +7,7 @@ const socket = io.connect('http://localhost:8080');
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [waterLevel, setWaterLevel] = useState(null);
-  const [request, setRequest] = useState(null);
+  const [arduinoStatus, setArduinoStatus] = useState({});
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -19,32 +18,26 @@ function App() {
       setIsConnected(false);
     });
 
-    socket.on('Water_Level', function (data) {
-      setWaterLevel(data.WaterLevel);
-      setTimeout(() => {  sendRequest()}, 4000);
-      console.log(data)
+    socket.on('arduinoStatus', async (data) => {
+      await setArduinoStatus(data.status);
     });
 
 
     return () => {
       socket.off('connect');
       socket.off('disconnect');
-      socket.off('Water_Level');
+      socket.off('arduinoStatus');
     };
   }, []);
 
   const sendRequest = async () => {
     try {
-      await axios.post('http://localhost:8080/waterSokect',
-        {
-          'status': 'Water_Level'
-        }).then(
-          res => {
-            setRequest(res.data.status)
-            console.log(res.data)
-          }
-        )
-
+      await axios.get('http://localhost:8080/update-status').then(
+        function (response) {
+          setArduinoStatus(response.data.status)
+          console.log('SEND ' + JSON.stringify(response.data.status))
+        }
+      )
     } catch (error) {
       console.error(error);
     }
@@ -55,15 +48,10 @@ function App() {
     return 'Não conectado';
   }, [isConnected])
 
-  const waterLevelValue = useMemo(() => {
-    if (waterLevel !== null) return `${waterLevel}`;
+  const arduinoStatusValue = useMemo(() => {
+    if (arduinoStatus) return `${arduinoStatus}`;
     return '--';
-  }, [waterLevel])
-
-  const requestValue = useMemo(() => {
-    if (request !== null) return `${request}`;
-    return '--';
-  }, [request])
+  }, [arduinoStatus])
 
   return (
     <div className='card'>
@@ -73,10 +61,10 @@ function App() {
       <p className='connected-value'>{connectedValue}</p>
 
       <p>Nível da água:</p>
-      <p className='info-value'>{waterLevelValue}</p>
+      <p className='info-value'>{arduinoStatus.waterLevel}</p>
 
-      <p>Status da requisição:</p>
-      <p className='info-value'>{requestValue}</p>
+      <p>Fluxo e água:</p>
+      <p className='info-value'>{arduinoStatus.flowLevel}</p>
 
       <button onClick={sendRequest}>Atualizar</button>
     </div>
